@@ -1,4 +1,4 @@
-package com.furkan.todolist;
+package com.furkan;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

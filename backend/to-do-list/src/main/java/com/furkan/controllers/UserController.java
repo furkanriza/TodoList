@@ -1,26 +1,22 @@
-package com.furkan.todolist.controller;
+package com.furkan.controllers;
 
-import com.furkan.todolist.modal.User;
-import com.furkan.todolist.service.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.Optional;
-
-@CrossOrigin(origins = "http://localhost:3000/")
 @RestController
-@RequestMapping("/users")
+@RequestMapping("/user")
+@CrossOrigin("*")
 public class UserController {
 
-    private final UserService userService;
-
-    //@Autowired // irrelevant here
-    public UserController(UserService userService) {
-        this.userService = userService;
+    @GetMapping("/")
+    public String helloUserController(){
+        return "User access level";
     }
 
+    // not implemented for registration system yet.
+    /*
     @GetMapping("/")
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getAllUsers();
@@ -31,7 +27,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<User> getUserById(@PathVariable Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable Integer id) {
         Optional<User> user = userService.getUserById(id);
         if (user.isPresent()){
             User returnedUser = user.get();
@@ -49,7 +45,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<User> updateUser(@PathVariable Long id, @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@PathVariable Integer id, @RequestBody User user) {
         try {
             User updatedUser = userService.updateUser(id, user);
             System.out.println("---updated:    "+user.toString() + "  replaced with   >>>   "+ updatedUser.toString());
@@ -60,7 +56,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteUser(@PathVariable Integer id) {
         Optional<User> user = userService.getUserById(id);
 
         if (user.isPresent()) {
@@ -77,7 +73,7 @@ public class UserController {
 
     //not tested
     @PatchMapping("/{id}")
-    public ResponseEntity<User> patchUser(@PathVariable Long id, @RequestBody User updatedUser) {
+    public ResponseEntity<User> patchUser(@PathVariable Integer id, @RequestBody User updatedUser) {
         Optional<User> existingUser = userService.getUserById(id);
         if (existingUser.isPresent()) {
             User user = existingUser.get();
@@ -103,5 +99,5 @@ public class UserController {
         Optional<User> authenticatedUser = userService.authenticateUser(user.getUsername(), user.getPassword());
         return authenticatedUser.map(ResponseEntity::ok)
                 .orElse(ResponseEntity.status(HttpStatus.UNAUTHORIZED).build());
-    }
+    }*/
 }

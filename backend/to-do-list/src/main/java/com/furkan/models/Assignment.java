@@ -1,38 +1,43 @@
-package com.furkan.todolist.modal;
+package com.furkan.models;
 
 import jakarta.persistence.*;
+import org.jetbrains.annotations.NotNull;
 
 @Entity
+@Table(name="assignment")
 public class Assignment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private Long id;
+    private Integer id;
 
-    @Column(name = "description")
+    @Column(name = "description", nullable = false)
+    @NotNull
     private String description;
 
-    @Column(name = "status")
+    @Column(name = "status", nullable = false)
+    @NotNull
     private String status;
 
-    @Column(name = "userID")
-    private String userID;
+    @Column(name = "user_id", nullable = false)
+    @NotNull
+    private Integer userId;
 
-    public Assignment(String description, String status, String userID) {
+    public Assignment(String description, String status, Integer userId) {
         this.description = description;
         this.status = status;
-        this.userID = userID;
+        this.userId = userId;
     }
 
     public Assignment() {
     }
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
     }
 
     public String getDescription() {
@@ -51,12 +56,12 @@ public class Assignment {
         this.status = status;
     }
 
-    public String getUserID() {
-        return userID;
+    public Integer getUserId() {
+        return userId;
     }
 
-    public void setUserID(String userID) {
-        this.userID = userID;
+    public void setUserId(Integer user_id) {
+        this.userId = user_id;
     }
 
     @Override
@@ -65,7 +70,7 @@ public class Assignment {
                 "id=" + id +
                 ", description='" + description + '\'' +
                 ", status='" + status + '\'' +
-                ", userID='" + userID + '\'' +
+                ", user_id='" + userId + '\'' +
                 '}';
     }
 }

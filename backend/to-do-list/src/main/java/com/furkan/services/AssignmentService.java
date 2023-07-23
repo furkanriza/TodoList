@@ -1,7 +1,7 @@
-package com.furkan.todolist.service;
+package com.furkan.services;
 
-import com.furkan.todolist.modal.Assignment;
-import com.furkan.todolist.repository.AssignmentRepository;
+import com.furkan.models.Assignment;
+import com.furkan.repository.AssignmentRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +19,7 @@ public class AssignmentService {
         return assignmentRepository.findAll();
     }
 
-    public Optional<Assignment> getAssignmentById(Long id) {
+    public Optional<Assignment> getAssignmentById(Integer id) {
         return assignmentRepository.findById(id);
     }
 
@@ -27,7 +27,7 @@ public class AssignmentService {
         return assignmentRepository.save(assignment);
     }
 
-    public Assignment updateAssignment(Long id, Assignment updatedAssignment) {
+    public Assignment updateAssignment(Integer id, Assignment updatedAssignment) {
         Assignment existingAssignment = assignmentRepository.findById(id).orElse(null);
         if (existingAssignment != null) {
             existingAssignment.setDescription(updatedAssignment.getDescription());
@@ -37,7 +37,12 @@ public class AssignmentService {
         return null;
     }
 
-    public void deleteAssignment(Long id) {
+    public void deleteAssignment(Integer id) {
         assignmentRepository.deleteById(id);
     }
+
+    public List<Assignment> getAssignmentsByUser_id(Integer user_id) {
+        return assignmentRepository.findAllByUserId(user_id);
+    }
+
 }
