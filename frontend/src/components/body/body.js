@@ -10,41 +10,52 @@ function Body() {
     ]);
 
     const [filter, setFilter] = useState('all');
+    const { token } = useParams();
 
-    const { isAUser } = useParams();
-    /*let { isAuthenticate } = false;
-    useEffect(() => {
-        if (isAUser === 'strongEnoughPassword') {
-            isAuthenticate = true;
-            console.log('Valid login');
-        } else {
-            isAuthenticate = false;
-            console.log('Invalid login');
-        }
-    }, [isAUser]);*/
+    /*useEffect(() => {
+        const fetchTodos = () => {
+            console.log("login successfull!!!!");
+            alert("login successfull!!!!");
+            console.log("token : ", token);
+        };
+
+        fetchTodos();
+
+    }, []);*/
+
 
     useEffect(() => {
         const fetchTodos = () => {
-            fetch("http://localhost:8080/assignments/")
-                .then(response => response.json())
+            fetch("http://localhost:8080/assignments/", {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+
+            })
+                .then(response => {
+                    console.log("Response status:", response.status);
+                    return response.json();
+                })
                 .then(data => {
+                    // Note: You may need to adjust the data processing based on the actual response structure
                     const updatedTodos = data.map(todo => ({
                         ...todo,
                         status: todo.status === "1" ? true : false
                     }));
-                    console.log("Retreved data:\n", updatedTodos);
+
+                    console.log("Retrieved data:\n", updatedTodos);
                     setTodos(updatedTodos);
                 })
-                /*.catch(error => console.log('Error fetching todos:', error));*/
                 .catch(error => {
                     console.log('Error fetching todos:', error);
-                    alert('An error occurred while retreving data.');
+                    alert('An error occurred while retrieving data.');
                 });
         };
-        //console.log("useEffect executed");
 
         fetchTodos();
     }, []);
+
 
     useEffect(() => {
         const addTodo = (event) => {
@@ -61,6 +72,7 @@ function Body() {
                 fetch("http://localhost:8080/assignments/", {
                     method: 'POST',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(newTodo)
@@ -96,6 +108,7 @@ function Body() {
                 fetch(`http://localhost:8080/assignments/${todoId}`, {
                     method: 'PATCH',
                     headers: {
+                        'Authorization': `Bearer ${token}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(updatedTodo)
@@ -144,6 +157,7 @@ function Body() {
             fetch(`http://localhost:8080/assignments/${todoId}`, {
                 method: 'DELETE',
                 headers: {
+                    'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
                 }
             })
@@ -167,6 +181,7 @@ function Body() {
         fetch(`http://localhost:8080/assignments/${todoId}`, {
             method: 'DELETE',
             headers: {
+                'Authorization': `Bearer ${token}`,
                 'Content-Type': 'application/json'
             }
         })
@@ -188,13 +203,6 @@ function Body() {
         setIsVisible(!isVisible);
         console.log(isVisible);
     };
-
-    if (isAUser !== "strongEnoughPassword") {
-        console.log(isAUser);
-        return (<div>
-            Invalid login
-        </div>);
-    }
 
     return (
         <div className='entirebody'>

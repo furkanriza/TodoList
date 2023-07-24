@@ -6,8 +6,10 @@ import './login.css';
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [isLoginFailed, setLoginFailed] = useState(false);
 
     const navigate = useNavigate();
+
 
     useEffect(() => {
         sessionStorage.clear();
@@ -17,31 +19,36 @@ const Login = () => {
         e.preventDefault();
         if (validate()) {
             const user = { username, password };
-            fetch('http://localhost:8080/users/login', {
+            fetch('http://localhost:8080/auth/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(user),
             })
                 .then((res) => {
+                    console.log("Response status:", res.status);
                     if (res.ok) {
-                        console.log(user);
+                        console.log("Response returned ok");
                         return res.json();
                     } else {
+                        console.log("Login failed with status:", res.status);
+                        setLoginFailed(true);
                         throw new Error('Login failed');
                     }
                 })
                 .then((resp) => {
-                    console.log("Login successful");
+                    console.log("Generated token:", resp.jwt);
                     toast.success('Success');
                     sessionStorage.setItem('username', username);
                     sessionStorage.setItem('userrole', resp.role);
-                    navigate('/body/strongEnoughPassword');
+                    navigate(`/body/${resp.jwt}`); // Navigate only when login is successful
                 })
                 .catch((err) => {
+                    console.log("Error during login:", err.message);
                     toast.error('Login failed due to: ' + err.message);
                 });
         }
     };
+
 
     const validate = () => {
         let result = true;
@@ -81,15 +88,21 @@ const Login = () => {
                                 <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
                                 <i>Password</i>
                             </div>
-                            <div className="links"></div>
                             <div className="inputBox">
                                 <input type="submit" value="Login" onClick={handleLogin} />
                             </div>
+                            {isLoginFailed && <div className="invalidLoginDiv">
+                                <label className="invalidLogin">invalid username or password</label>
+                            </div>}
+                            <div className="links" >
+                                <label>Don't have an account yet?</label>
+                                <input className="registerButton" type="submit" value="Sign Up Now" /*onClick={routeRegisterPage}*/ />
+                            </div>
                         </div>
                     </div>
-                </div>
-            </section>
-        </div>
+                </div >
+            </section >
+        </div >
 
     );
 };

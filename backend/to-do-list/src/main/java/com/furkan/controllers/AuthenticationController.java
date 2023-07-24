@@ -1,6 +1,8 @@
 package com.furkan.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.furkan.models.ApplicationUser;
@@ -10,7 +12,7 @@ import com.furkan.services.AuthenticationService;
 
 @RestController
 @RequestMapping("/auth")
-@CrossOrigin("*")
+@CrossOrigin(origins = "http://localhost:3000/")
 public class AuthenticationController {
 
     @Autowired
@@ -25,9 +27,15 @@ public class AuthenticationController {
     public ApplicationUser registerUser(@RequestBody RegistrationDTO body){
         return authenticationService.registerUser(body.getUsername(), body.getPassword());
     }
-    
+
     @PostMapping("/login")
-    public LoginResponseDTO loginUser(@RequestBody RegistrationDTO body){
-        return authenticationService.loginUser(body.getUsername(), body.getPassword());
+    public ResponseEntity<LoginResponseDTO> loginUser(@RequestBody RegistrationDTO body) {
+        LoginResponseDTO response = authenticationService.loginUser(body.getUsername(), body.getPassword());
+        if (response.getUser() == null) {
+            // If login credentials are invalid, return 401 Unauthorized
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+        System.out.println("auth");
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }   

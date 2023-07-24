@@ -15,10 +15,6 @@ public class AssignmentService {
         this.assignmentRepository = assignmentRepository;
     }
 
-    public List<Assignment> getAllAssignments() {
-        return assignmentRepository.findAll();
-    }
-
     public Optional<Assignment> getAssignmentById(Integer id) {
         return assignmentRepository.findById(id);
     }

@@ -54,7 +54,7 @@ public class AuthenticationService {
             Authentication auth = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
 
             String token = tokenService.generateJwt(auth);
-            System.out.println(username + token);
+            System.out.println("username: "+ username + "generated token: " + token);
 
             return new LoginResponseDTO(userRepository.findByUsername(username).get(), token);
 

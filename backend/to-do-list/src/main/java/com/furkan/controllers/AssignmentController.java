@@ -11,10 +11,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.*;
 
-@CrossOrigin(origins = "http://localhost:3000/")
+@CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/assignments")
 public class AssignmentController {
@@ -27,6 +26,7 @@ public class AssignmentController {
     }
 
     // tested
+    @CrossOrigin
     @GetMapping("/")
     public ResponseEntity<List<Assignment>> getAssignmentsByUserId() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -78,14 +78,14 @@ public class AssignmentController {
     public ResponseEntity<Assignment> createAssignment(@RequestBody Assignment assignment) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (!(authentication instanceof AnonymousAuthenticationToken)) {
+            //set assignment user id with authenticated user's id
             String usrname = authentication.getName();
             Optional<ApplicationUser> optionalApplicationUser = userRepository.findByUsername(usrname);
             int user_id = optionalApplicationUser.get().getUser_id();
-            if (user_id == assignment.getUserId()){
-                Assignment createdAssignment = assignmentService.createAssignment(assignment);
-                return new ResponseEntity<>(createdAssignment, HttpStatus.CREATED);
-            }
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+            assignment.setUserId(user_id);
+
+            Assignment createdAssignment = assignmentService.createAssignment(assignment);
+            return new ResponseEntity<>(createdAssignment, HttpStatus.CREATED);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

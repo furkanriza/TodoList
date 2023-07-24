@@ -136,7 +136,9 @@
     position: relative;
     width: 100%;
     display: flex;
-    justify-content: space-between;
+    flex-direction: column;
+    align-items: center;
+    color: #838383;
 }
 
 .signin .content .form .links a {
@@ -149,6 +151,15 @@
     font-weight: 600;
 }
 
+.registerButton {
+    margin-top: 1em;
+    padding: 1em;
+    width: max-content;
+    background-color: transparent;
+    color: #fff;
+    letter-spacing: 0.07em;
+}
+
 .signin .content .form .inputBox input[type="submit"] {
     padding: 10px;
     background: #0f0;
@@ -157,10 +168,15 @@
     font-size: 1.35em;
     letter-spacing: 0.05em;
     cursor: pointer;
+    text-align: center;
 }
 
 .entireThing input[type="submit"]:active {
     opacity: 0.6;
+}
+
+.invalidLogin {
+    color: red;
 }
 
 @media (max-width: 900px) {
