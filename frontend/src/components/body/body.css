@@ -332,13 +332,18 @@
 html .clear-completed:active {
     float: right;
     position: relative;
-    line-height: 20px;
+    line-height: 2em;
     text-decoration: none;
     cursor: pointer;
 }
 
 .clear-completed:hover {
     text-decoration: underline;
+}
+
+.show-videos {
+    margin: 10px;
+    /* Adjust the value to create the desired space between the buttons */
 }
 
 .info {
@@ -421,6 +426,11 @@ html .clear-completed:active {
     margin: 0 0 0 43px !important;
     border: 1px solid #999 !important;
     box-shadow: inset 0 -1px 5px 0 rgba(0, 0, 0, 0.2) !important;
+}
+
+.tab {
+    display: inline-block;
+    margin-left: 40px;
 }
 
 .mv-item-bar,

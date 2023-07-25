@@ -8,13 +8,6 @@ import {
   Route,
 } from "react-router-dom";
 
-/*const [displayAddress, setDisplayAddress] = useState(true);
-const displayAddressFlag = true;
-
-const changeDisplayAddressFlag = () => {
-  setDisplayAddress(!displayAddressFlag);
-}*/
-
 function App() {
   return (
     <>
