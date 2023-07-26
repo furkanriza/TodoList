@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useParams } from "react-router-dom";
-import "./body.css";
+import { useNavigate } from "react-router-dom";
+import "./home.css";
 
-function Body() {
+function Home() {
     const [todos, setTodos] = useState([
         /*{ id: 1, description: 'Learn JavaScript', status: false },
         { id: 2, description: 'Learn React', status: false },
@@ -11,9 +11,120 @@ function Body() {
     const [youTubeVideos, setYouTubeVideos] = useState([]);
 
     const [filter, setFilter] = useState('all');
-    const { token } = useParams();
+    const storedToken = localStorage.getItem('token');
+    const navigate = useNavigate();
+    const [isTokenValid, setIsTokenValid] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
 
 
+    // check if storedToken is null or invalid or expired
+    useEffect(() => {
+        const validateTokenAndNavigate = async () => {
+            if (!storedToken) {
+                console.log("1");
+                setIsTokenValid(false);
+                setIsLoading(false); // Navigate to the login page if token is null
+            } else {
+                console.log("2", storedToken);
+                try {
+                    const response = await fetch("http://localhost:8080/user/", {
+                        headers: {
+                            'Authorization': `Bearer ${storedToken}`,
+                            'Content-Type': 'application/json'
+                        },
+                    });
+
+                    if (!response.ok) {
+                        setIsLoading(false);
+                    } else {
+                        setIsLoading(false);
+                        fetchTodos();
+                    }
+                } catch (error) {
+                    console.log('Error verifying token:', error);
+                    setIsTokenValid(false);  // Navigate to the login page if there's an error during token verification
+                    setIsLoading(false);
+                }
+            }
+        };
+
+        validateTokenAndNavigate();
+    }, [storedToken]);
+
+
+    const refreshToken = () => {
+        console.log("token refreshed");
+        navigateToLogin();
+        alert("token couldn't refreshed");
+    };
+
+    useEffect(() => {
+        if (!isTokenValid) {
+            refreshToken();
+        }
+    }, [isTokenValid]);
+
+    const navigateToLogin = () => {
+        navigate('/login');
+    };
+
+
+    const fetchTodos = () => {
+        fetch("http://localhost:8080/assignments/", {
+            headers: {
+                'Authorization': `Bearer ${storedToken}`,
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Response status:", response.status);
+                    return response.json();
+                } else {
+                    // If the response status is 401 (Unauthorized), the token is invalid
+                    if (response.status === 401) {
+                        console.log("Invalid token");
+                        setIsTokenValid(false);
+                    } else {
+                        console.log("Response status:", response.status);
+                        throw new Error("Failed to fetch data");
+                    }
+                }
+            })
+            .then(data => {
+                const updatedTodos = data.map(todo => ({
+                    ...todo,
+                    status: todo.status === "1" ? true : false
+                }));
+
+                console.log("Retrieved data:\n", updatedTodos);
+                // beginning of function
+                Promise.all(updatedTodos.map(todo => fetchSuggestedVideos(todo)))
+                    .then(videoDataArray => {
+                        const updatedTodosWithVideos = updatedTodos.map((todo, index) => ({
+                            ...todo,
+                            videos: videoDataArray[index] // Set the 'videos' property for each todo
+                        }));
+                        updatedTodosWithVideos.forEach(todo => {
+                            console.log("Description:", todo.description);
+                            console.log("Videos:");
+                            todo.videos.forEach(video => {
+                                console.log(video.videoid);
+                            });
+                        });
+                        setTodos(updatedTodosWithVideos);
+                    })
+                    .catch(error => {
+                        console.log('Error fetching videos:', error);
+                        setTodos(updatedTodos); // Set todos without videos in case of error
+                    });
+                // end of funtion
+            })
+            .catch(error => {
+                console.log('Error fetching todos:', error);
+                alert('An error occurred while retrieving data.');
+            });
+    }
 
     const fetchSuggestedVideos = async (todo) => {
         //console.log(todo.description);
@@ -39,56 +150,6 @@ function Body() {
 
 
     useEffect(() => {
-        const fetchTodos = () => {
-            fetch("http://localhost:8080/assignments/", {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            })
-                .then(response => {
-                    console.log("Response status:", response.status);
-                    return response.json();
-                })
-                .then(data => {
-                    const updatedTodos = data.map(todo => ({
-                        ...todo,
-                        status: todo.status === "1" ? true : false
-                    }));
-
-                    console.log("Retrieved data:\n", updatedTodos);
-
-                    Promise.all(updatedTodos.map(todo => fetchSuggestedVideos(todo)))
-                        .then(videoDataArray => {
-                            const updatedTodosWithVideos = updatedTodos.map((todo, index) => ({
-                                ...todo,
-                                videos: videoDataArray[index] // Set the 'videos' property for each todo
-                            }));
-                            updatedTodosWithVideos.forEach(todo => {
-                                console.log("Description:", todo.description);
-                                console.log("Videos:");
-                                todo.videos.forEach(video => {
-                                    console.log(video.videoid);
-                                });
-                            });
-                            setTodos(updatedTodosWithVideos);
-                        })
-                        .catch(error => {
-                            console.log('Error fetching videos:', error);
-                            setTodos(updatedTodos); // Set todos without videos in case of error
-                        });
-                })
-                .catch(error => {
-                    console.log('Error fetching todos:', error);
-                    alert('An error occurred while retrieving data.');
-                });
-        };
-
-        fetchTodos();
-    }, [token]);
-
-
-    useEffect(() => {
         const addTodo = (event) => {
             event.preventDefault();
             const newTodoText = event.target.elements.todoInput.value;
@@ -103,7 +164,7 @@ function Body() {
                 fetch("http://localhost:8080/assignments/", {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${storedToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(newTodo)
@@ -141,6 +202,8 @@ function Body() {
         };
     }, [todos]);
 
+
+
     const toggleTodo = (todoId) => {
         const updatedTodos = todos.map(todo => {
             if (todo.id === todoId) {
@@ -151,7 +214,7 @@ function Body() {
                 fetch(`http://localhost:8080/assignments/${todoId}`, {
                     method: 'PATCH',
                     headers: {
-                        'Authorization': `Bearer ${token}`,
+                        'Authorization': `Bearer ${storedToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(updatedTodo)
@@ -176,6 +239,8 @@ function Body() {
         setTodos(updatedTodos);
     };
 
+
+
     const filterTodos = () => {
         switch (filter) {
             case 'active':
@@ -187,9 +252,7 @@ function Body() {
         }
     };
 
-    /*const clearCompleted = () => {
-        setTodos(todos.filter(todo => !todo.status));
-    };*/
+
 
     const clearCompleted = () => {
         // Get the ids of completed todos
@@ -200,7 +263,7 @@ function Body() {
             fetch(`http://localhost:8080/assignments/${todoId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${token}`,
+                    'Authorization': `Bearer ${storedToken}`,
                     'Content-Type': 'application/json'
                 }
             })
@@ -224,7 +287,7 @@ function Body() {
         fetch(`http://localhost:8080/assignments/${todoId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${storedToken}`,
                 'Content-Type': 'application/json'
             }
         })
@@ -251,6 +314,13 @@ function Body() {
     const showVideos = () => {
         setIsVisibleVideos(!isVisibleVideos);
     };
+
+
+
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
 
     return (
         <div className='entirebody'>
@@ -280,7 +350,7 @@ function Body() {
                                         />
                                         <label>{todo.description}
                                             {isVisibleVideos && <> <br /> Related videos:<br />
-                                                {todo.videos && Array.isArray(todo.videos) && todo.videos.length > 0 && todo.videos.map((video, videoIndex) => (
+                                                {todo.videos && todo.videos != null && Array.isArray(todo.videos) && todo.videos.length > 0 && todo.videos.map((video, videoIndex) => (
                                                     <span key={videoIndex} className='tab'>
                                                         <a href={`https://www.youtube.com/watch?v=${video.videoid}`}><img src={`${video.title}`} /></a>
                                                     </span>
@@ -344,4 +414,4 @@ function Body() {
     );
 }
 
-export default Body;
+export default Home;

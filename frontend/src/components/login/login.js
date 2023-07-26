@@ -40,7 +40,8 @@ const Login = () => {
                     toast.success('Success');
                     sessionStorage.setItem('username', username);
                     sessionStorage.setItem('userrole', resp.role);
-                    navigate(`/body/${resp.jwt}`); // Navigate only when login is successful
+                    localStorage.setItem('token', resp.jwt);
+                    navigate('/home');
                 })
                 .catch((err) => {
                     console.log("Error during login:", err.message);
@@ -48,6 +49,7 @@ const Login = () => {
                 });
         }
     };
+
 
 
     const validate = () => {

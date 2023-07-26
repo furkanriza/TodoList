@@ -1,6 +1,6 @@
-import Body from "./components/body/body";
+import Home from "./components/home/home";
 import Login from "./components/login/login";
-import { useState } from "react";
+import NotFound from "./components/404page/notFound";
 
 import {
   BrowserRouter as Router,
@@ -14,7 +14,9 @@ function App() {
       <Router>
         <Routes>
           <Route path="/login" element={<Login />} />
-          <Route path="/body/:token" element={<Body />} />
+          <Route path="/home" element={<Home />} />
+          <Route exact path="/" element={<Home />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </>

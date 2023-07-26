@@ -15,7 +15,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/search")
-public class YouTubeSearchController2 {
+public class YouTubeSearchController {
 
     @Value("${youtube.api.key}")
     private String apiKey;
