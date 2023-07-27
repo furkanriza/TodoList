@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import "./home.css";
 
 function Home() {
-    const [todos, setTodos] = useState([
-        /*{ id: 1, description: 'Learn JavaScript', status: false },
-        { id: 2, description: 'Learn React', status: false },
-        { id: 3, description: 'Have a life!', status: false }*/
-    ]);
+    const [todos, setTodos] = useState([]);
     const [youTubeVideos, setYouTubeVideos] = useState([]);
 
     const [filter, setFilter] = useState('all');
@@ -35,6 +31,7 @@ function Home() {
                     });
 
                     if (!response.ok) {
+                        setIsTokenValid(false);
                         setIsLoading(false);
                     } else {
                         setIsLoading(false);
@@ -52,22 +49,29 @@ function Home() {
     }, [storedToken]);
 
 
-    const refreshToken = () => {
-        console.log("token refreshed");
-        navigateToLogin();
-        alert("token couldn't refreshed");
-    };
-
     useEffect(() => {
         if (!isTokenValid) {
             refreshToken();
         }
     }, [isTokenValid]);
 
+    const refreshToken = () => {
+        console.log("token refreshed");
+        navigateToLogin();
+        alert("token couldn't refreshed");
+    };
+
     const navigateToLogin = () => {
         navigate('/login');
     };
 
+    const handleLogout = () => {
+        // Remove the token from localStorage
+        localStorage.removeItem('token');
+
+        // Navigate to the login page
+        navigate('/login');
+    };
 
     const fetchTodos = () => {
         fetch("http://localhost:8080/assignments/", {
@@ -408,8 +412,16 @@ function Home() {
                     <button className="clear-completed show-videos" style={{ marginRight: '2em' }} onClick={showVideos}>
                         Show Related Videos
                     </button>
+
+
                 </footer>
             </section>
+            <div className='log-out-div'>
+                <button className="log-out" onClick={handleLogout}>
+                    Log Out
+                </button>
+            </div>
+
         </div>
     );
 }

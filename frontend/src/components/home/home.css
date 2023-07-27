@@ -433,6 +433,22 @@ html .clear-completed:active {
     margin-left: 40px;
 }
 
+.log-out-div {
+    display: flex;
+    justify-content: center;
+
+}
+
+.log-out {
+    background-color: red;
+    color: white;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+}
+
 .mv-item-bar,
 .mv-ui.mv-message,
 button.mv-add,

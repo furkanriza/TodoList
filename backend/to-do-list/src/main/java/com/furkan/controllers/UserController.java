@@ -14,7 +14,7 @@ public class UserController {
 
     @GetMapping("/")
     public ResponseEntity<Void> helloUserController(){
-        System.out.println("token validated token validated token validated token validated token validated token validated token validated token validated ");
+        //System.out.println("token validated token validated token validated token validated token validated token validated token validated token validated ");
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
