@@ -7,25 +7,30 @@ function Home() {
     const [youTubeVideos, setYouTubeVideos] = useState([]);
 
     const [filter, setFilter] = useState('all');
-    const storedToken = localStorage.getItem('token');
+
+    const [accessToken, setAccessToken] = useState(localStorage.getItem('accesstoken'));
+    const [token, setToken] = useState(localStorage.getItem('token'));
     const navigate = useNavigate();
     const [isTokenValid, setIsTokenValid] = useState(true);
     const [isLoading, setIsLoading] = useState(true);
 
+    /*useEffect(()=>{
+        setInterval(() => {
+            
+        }, 5000);
+    }, []);*/ //way 1
 
     // check if storedToken is null or invalid or expired
     useEffect(() => {
         const validateTokenAndNavigate = async () => {
-            if (!storedToken) {
-                console.log("1");
-                setIsTokenValid(false);
-                setIsLoading(false); // Navigate to the login page if token is null
+            if (!accessToken) {
+                setIsTokenValid(false); // Navigate to the login page if token is null
+                setIsLoading(false);
             } else {
-                console.log("2", storedToken);
                 try {
                     const response = await fetch("http://localhost:8080/user/", {
                         headers: {
-                            'Authorization': `Bearer ${storedToken}`,
+                            'Authorization': `Bearer ${accessToken}`,
                             'Content-Type': 'application/json'
                         },
                     });
@@ -46,19 +51,64 @@ function Home() {
         };
 
         validateTokenAndNavigate();
-    }, [storedToken]);
+    }, [accessToken]);
 
 
     useEffect(() => {
         if (!isTokenValid) {
-            refreshToken();
+            refreshTheToken();
         }
     }, [isTokenValid]);
 
-    const refreshToken = () => {
-        console.log("token refreshed");
-        navigateToLogin();
-        alert("token couldn't refreshed");
+    const refreshTheToken = async () => {
+        if (!token) {
+            alert('An error occurred while retrieving data.');
+            navigateToLogin();
+            return;
+        }
+
+        try {
+            // Send a request to your backend to refresh the access token using the refresh token
+            const refreshResponse = await fetch('http://localhost:8080/auth/refreshToken', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    token: token,
+                }),
+            });
+
+            if (!refreshResponse.ok) {
+                console.log("33");
+                // Refresh token request failed, handle accordingly (e.g., show error, log out user)
+                alert('An error occurred while retrieving data.');
+                navigateToLogin();
+                return;
+            }
+
+            console.log("refreshResponse: ", refreshResponse);
+            const refreshedTokens = await refreshResponse.json();
+            console.log("refreshedTokens: ", refreshedTokens);
+            const newAccessToken = refreshedTokens.accessToken;
+            console.log("newAccessToken", newAccessToken);
+            const newRefreshToken = refreshedTokens.token;
+            console.log("newRefreshToken", newRefreshToken);
+
+            // Update the access token in localStorage
+            localStorage.setItem('accesstoken', newAccessToken);
+            setAccessToken(newAccessToken);
+            localStorage.setItem('token', newRefreshToken);
+            setToken(newRefreshToken);
+
+            // Mark the token as valid and fetch todos with the new access token
+            setIsTokenValid(true);
+            fetchTodos();
+        } catch (error) {
+            console.log('Error refreshing token:', error);
+            alert('An error occurred while retrieving data.');
+            navigateToLogin();
+        }
     };
 
     const navigateToLogin = () => {
@@ -76,13 +126,13 @@ function Home() {
     const fetchTodos = () => {
         fetch("http://localhost:8080/assignments/", {
             headers: {
-                'Authorization': `Bearer ${storedToken}`,
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             }
         })
             .then(response => {
                 if (response.ok) {
-                    console.log("Response status:", response.status);
+                    console.log("Response status (fetchTodos):", response.status);
                     return response.json();
                 } else {
                     // If the response status is 401 (Unauthorized), the token is invalid
@@ -101,8 +151,7 @@ function Home() {
                     status: todo.status === "1" ? true : false
                 }));
 
-                console.log("Retrieved data:\n", updatedTodos);
-                // beginning of function
+                // beginning of function (remove this part if you are not going to use youtube api)
                 Promise.all(updatedTodos.map(todo => fetchSuggestedVideos(todo)))
                     .then(videoDataArray => {
                         const updatedTodosWithVideos = updatedTodos.map((todo, index) => ({
@@ -122,11 +171,12 @@ function Home() {
                         console.log('Error fetching videos:', error);
                         setTodos(updatedTodos); // Set todos without videos in case of error
                     });
+
                 // end of funtion
+                setTodos(updatedTodos);
             })
             .catch(error => {
                 console.log('Error fetching todos:', error);
-                alert('An error occurred while retrieving data.');
             });
     }
 
@@ -168,7 +218,7 @@ function Home() {
                 fetch("http://localhost:8080/assignments/", {
                     method: 'POST',
                     headers: {
-                        'Authorization': `Bearer ${storedToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(newTodo)
@@ -218,7 +268,7 @@ function Home() {
                 fetch(`http://localhost:8080/assignments/${todoId}`, {
                     method: 'PATCH',
                     headers: {
-                        'Authorization': `Bearer ${storedToken}`,
+                        'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(updatedTodo)
@@ -267,7 +317,7 @@ function Home() {
             fetch(`http://localhost:8080/assignments/${todoId}`, {
                 method: 'DELETE',
                 headers: {
-                    'Authorization': `Bearer ${storedToken}`,
+                    'Authorization': `Bearer ${accessToken}`,
                     'Content-Type': 'application/json'
                 }
             })
@@ -291,7 +341,7 @@ function Home() {
         fetch(`http://localhost:8080/assignments/${todoId}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${storedToken}`,
+                'Authorization': `Bearer ${accessToken}`,
                 'Content-Type': 'application/json'
             }
         })

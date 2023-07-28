@@ -1,3 +1,6 @@
+//refresh token is retrieving as token
+//access  token is retrieving as accsessToken
+
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
@@ -36,11 +39,13 @@ const Login = () => {
                     }
                 })
                 .then((resp) => {
-                    console.log("Generated token:", resp.jwt);
+                    console.log('Generated token:', resp.accessToken);
+                    console.log('Refresh token', resp.token);
                     toast.success('Success');
                     sessionStorage.setItem('username', username);
                     sessionStorage.setItem('userrole', resp.role);
-                    localStorage.setItem('token', resp.jwt);
+                    localStorage.setItem('accesstoken', resp.accessToken);
+                    localStorage.setItem('token', resp.token);
                     navigate('/home');
                 })
                 .catch((err) => {
@@ -49,6 +54,7 @@ const Login = () => {
                 });
         }
     };
+
 
 
 
